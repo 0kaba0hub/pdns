@@ -8,7 +8,7 @@ on:
     branches: [image-build]
 
 env:
-  BUILD_REF: 1384cea
+  BUILD_REF: 1384ceaeef32d243a390d3c50cadcd6f19c8d247
   BUILD_VERSION: 4.9.18
 
 permissions:
