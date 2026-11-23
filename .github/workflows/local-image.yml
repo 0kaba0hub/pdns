@@ -24,6 +24,11 @@ jobs:
           ref: ${{ env.BUILD_REF }}
           fetch-depth: 0
           submodules: recursive
+      # Debian 11 left support and its security archive is gone from the
+      # mirrors; both stages move to Debian 13.
+      - run: |
+          sed -i 's/^FROM debian:11-slim/FROM debian:13-slim/' Dockerfile-auth
+          grep -n '^FROM' Dockerfile-auth
       - id: tag
         run: echo "tag=${{ env.BUILD_VERSION }}-$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
       - uses: docker/setup-buildx-action@v3
@@ -37,5 +42,6 @@ jobs:
           context: .
           file: Dockerfile-auth
           platforms: linux/amd64
+          build-args: MAKEFLAGS=-j4
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/pdns-auth:${{ steps.tag.outputs.tag }}
