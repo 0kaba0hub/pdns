@@ -24,7 +24,6 @@ jobs:
           ref: ${{ env.BUILD_REF }}
           fetch-depth: 0
           submodules: recursive
-          grep -n '^FROM' Dockerfile-auth
       - id: tag
         run: echo "tag=${{ env.BUILD_VERSION }}-$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
       - uses: docker/setup-buildx-action@v3
