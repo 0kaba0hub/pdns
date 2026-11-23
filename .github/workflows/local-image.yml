@@ -25,9 +25,11 @@ jobs:
           fetch-depth: 0
           submodules: recursive
       # Debian 11 left support and its security archive is gone from the
-      # mirrors; both stages move to Debian 13.
+      # mirrors; both stages move to Debian 13, whose slim image lacks adduser.
       - run: |
           sed -i 's/^FROM debian:11-slim/FROM debian:13-slim/' Dockerfile-auth
+          sed -i 's/apt-get install -y python3 python3-jinja2/apt-get install -y adduser python3 python3-jinja2/' Dockerfile-auth
+          grep -n 'install -y adduser' Dockerfile-auth
           grep -n '^FROM' Dockerfile-auth
       - id: tag
         run: echo "tag=${{ env.BUILD_VERSION }}-$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
