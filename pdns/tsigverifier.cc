@@ -73,3 +73,27 @@ bool TSIGTCPVerifier::check(const string& data, const MOADNSParser& mdp)
 
   return true;
 }
+
+std::string tsigErrorSuffix(const MOADNSParser& mdp)
+{
+  for (const auto& answer : mdp.d_answers) {
+    if (answer.first.d_type != QType::TSIG) {
+      continue;
+    }
+    auto trc = getRR<TSIGRecordContent>(answer.first);
+    if (!trc || trc->d_eRcode == 0) {
+      return "";
+    }
+    switch (trc->d_eRcode) {
+    case ERCode::BADSIG:
+      return ", TSIG error: BADSIG";
+    case ERCode::BADKEY:
+      return ", TSIG error: BADKEY";
+    case ERCode::BADTIME:
+      return ", TSIG error: BADTIME";
+    default:
+      return ", TSIG error: " + std::to_string(trc->d_eRcode);
+    }
+  }
+  return "";
+}

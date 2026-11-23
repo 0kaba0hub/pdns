@@ -249,7 +249,7 @@ vector<pair<vector<DNSRecord>, vector<DNSRecord>>> getIXFRDeltas(Logr::log_t slo
 
     MOADNSParser mdp(false, reply);
     if (mdp.d_header.rcode) {
-      throw std::runtime_error("Got an error trying to IXFR zone '"+zone.toLogString()+"' from primary '"+primary.toStringWithPort()+"': "+RCode::to_s(mdp.d_header.rcode));
+      throw std::runtime_error("Got an error trying to IXFR zone '"+zone.toLogString()+"' from primary '"+primary.toStringWithPort()+"': "+RCode::to_s(mdp.d_header.rcode) + tsigErrorSuffix(mdp));
     }
 
     if (!tt.algo.empty()) { // TSIG verify message

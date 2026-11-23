@@ -254,4 +254,35 @@ BOOST_AUTO_TEST_CASE(test_TSIG_signature_too_far_in_the_future) {
   BOOST_CHECK_THROW(checkTSIG(tsigName, tsigAlgo, tsigSecret, packet), std::runtime_error);
 }
 
+static std::string tsigErrorSuffixOf(bool withTSIG, uint16_t eRcode)
+{
+  const DNSName qname("example.test.");
+  vector<uint8_t> packet;
+  DNSPacketWriter pw(packet, qname, QType::SOA);
+  pw.getHeader()->qr = 1;
+  pw.getHeader()->rcode = RCode::NotAuth;
+  pw.getHeader()->id = 42;
+  if (withTSIG) {
+    TSIGHashEnum the{};
+    BOOST_REQUIRE(getTSIGHashEnum(DNSName("hmac-sha256."), the));
+    TSIGRecordContent trc;
+    trc.d_algoName = getTSIGAlgoName(the);
+    trc.d_time = time(nullptr);
+    trc.d_fudge = 300;
+    trc.d_origID = 42;
+    trc.d_eRcode = eRcode;
+    addTSIG(pw, trc, DNSName("xfr-key."), "secret", "", false);
+  }
+  MOADNSParser mdp(false, std::string(reinterpret_cast<const char*>(packet.data()), packet.size()));
+  return tsigErrorSuffix(mdp);
+}
+
+BOOST_AUTO_TEST_CASE(test_tsigErrorSuffix) {
+  BOOST_CHECK_EQUAL(tsigErrorSuffixOf(true, ERCode::BADKEY), ", TSIG error: BADKEY");
+  BOOST_CHECK_EQUAL(tsigErrorSuffixOf(true, ERCode::BADSIG), ", TSIG error: BADSIG");
+  BOOST_CHECK_EQUAL(tsigErrorSuffixOf(true, ERCode::BADTIME), ", TSIG error: BADTIME");
+  BOOST_CHECK_EQUAL(tsigErrorSuffixOf(true, 0), "");
+  BOOST_CHECK_EQUAL(tsigErrorSuffixOf(false, 0), "");
+}
+
 BOOST_AUTO_TEST_SUITE_END();

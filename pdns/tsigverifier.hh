@@ -5,6 +5,11 @@
 #include "iputils.hh"
 #include "logr.hh"
 
+// ", TSIG error: BADKEY" when the answer carries a TSIG record with a
+// non-zero error (RFC 8945 5.2), "" otherwise. The rcode alone is NOTAUTH
+// for every TSIG failure; the cause is only in this field.
+std::string tsigErrorSuffix(const MOADNSParser& mdp);
+
 class TSIGTCPVerifier
 {
 public:
