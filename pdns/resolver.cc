@@ -126,30 +126,6 @@ Resolver::~Resolver()
   }
 }
 
-std::string tsigErrorSuffix(const MOADNSParser& mdp)
-{
-  for (const auto& answer : mdp.d_answers) {
-    if (answer.first.d_type != QType::TSIG) {
-      continue;
-    }
-    auto trc = getRR<TSIGRecordContent>(answer.first);
-    if (!trc || trc->d_eRcode == 0) {
-      return "";
-    }
-    switch (trc->d_eRcode) {
-    case ERCode::BADSIG:
-      return ", TSIG error: BADSIG";
-    case ERCode::BADKEY:
-      return ", TSIG error: BADKEY";
-    case ERCode::BADTIME:
-      return ", TSIG error: BADTIME";
-    default:
-      return ", TSIG error: " + std::to_string(trc->d_eRcode);
-    }
-  }
-  return "";
-}
-
 uint16_t Resolver::sendResolve(const ComboAddress& remote, const ComboAddress& local,
                                const DNSName &domain, int type, int *localsock, bool dnssecOK,
                                const DNSName& tsigkeyname, const DNSName& tsigalgorithm,
@@ -302,7 +278,7 @@ bool Resolver::tryGetSOASerial(DNSName *domain, ComboAddress* remote, uint32_t *
     }
 
     if(mdp.d_answers.empty()) {
-      throw ResolverException("Query to '" + remote->toLogString() + "' for SOA of '" + domain->toLogString() + "' produced no results (RCode: " + RCode::to_s(mdp.d_header.rcode) + tsigErrorSuffix(mdp) + ")");
+      throw ResolverException("Query to '" + remote->toLogString() + "' for SOA of '" + domain->toLogString() + "' produced no results (RCode: " + RCode::to_s(mdp.d_header.rcode) + ")");
     }
 
     if(mdp.d_qtype != QType::SOA) {
