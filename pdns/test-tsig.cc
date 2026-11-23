@@ -258,10 +258,10 @@ static std::string tsigErrorSuffixOf(bool withTSIG, uint16_t eRcode)
 {
   const DNSName qname("example.test.");
   vector<uint8_t> packet;
-  DNSPacketWriter pw(packet, qname, QType::SOA);
-  pw.getHeader()->qr = 1;
-  pw.getHeader()->rcode = RCode::NotAuth;
-  pw.getHeader()->id = 42;
+  DNSPacketWriter writer(packet, qname, QType::SOA);
+  writer.getHeader()->qr = 1;
+  writer.getHeader()->rcode = RCode::NotAuth;
+  writer.getHeader()->id = 42;
   if (withTSIG) {
     TSIGHashEnum the{};
     BOOST_REQUIRE(getTSIGHashEnum(DNSName("hmac-sha256."), the));
@@ -271,9 +271,9 @@ static std::string tsigErrorSuffixOf(bool withTSIG, uint16_t eRcode)
     trc.d_fudge = 300;
     trc.d_origID = 42;
     trc.d_eRcode = eRcode;
-    addTSIG(pw, trc, DNSName("xfr-key."), "secret", "", false);
+    addTSIG(writer, trc, DNSName("xfr-key."), "secret", "", false);
   }
-  MOADNSParser mdp(false, std::string(reinterpret_cast<const char*>(packet.data()), packet.size()));
+  MOADNSParser mdp(false, std::string(packet.begin(), packet.end()));
   return tsigErrorSuffix(mdp);
 }
 
