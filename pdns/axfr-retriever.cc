@@ -130,7 +130,7 @@ int AXFRRetriever::getChunk(Resolver::res_t &res, vector<DNSRecord>* records, ui
 
     int err = mdp.d_header.rcode;
     if (err != 0) {
-      throw ResolverException("AXFR chunk error: " + RCode::to_s(err));
+      throw ResolverException("AXFR chunk error: " + RCode::to_s(err) + tsigErrorSuffix(mdp));
     }
 
     if(mdp.d_header.tc) {
