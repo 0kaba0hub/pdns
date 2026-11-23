@@ -1,6 +1,6 @@
 name: Local patched auth image
 
-# Builds Dockerfile-auth from BUILD_REF of local-patches and pushes it to
+# Builds Dockerfile-auth from BUILD_REF of a local-patches branch and pushes it to
 # GHCR under <BUILD_VERSION>-<short sha>. Runs on push to image-build, as
 # workflow_dispatch needs the file on the default branch (the clean mirror).
 on:
@@ -8,8 +8,8 @@ on:
     branches: [image-build]
 
 env:
-  BUILD_REF: 1384ceaeef32d243a390d3c50cadcd6f19c8d247
-  BUILD_VERSION: 4.9.18
+  BUILD_REF: 72253a9907c85f9db773d4ac312e2cc8dd9d56b2
+  BUILD_VERSION: 5.1.5
 
 permissions:
   contents: read
@@ -24,12 +24,6 @@ jobs:
           ref: ${{ env.BUILD_REF }}
           fetch-depth: 0
           submodules: recursive
-      # Debian 11 left support and its security archive is gone from the
-      # mirrors; both stages move to Debian 13, whose slim image lacks adduser.
-      - run: |
-          sed -i 's/^FROM debian:11-slim/FROM debian:13-slim/' Dockerfile-auth
-          sed -i 's/apt-get install -y python3 python3-jinja2/apt-get install -y adduser python3 python3-jinja2/' Dockerfile-auth
-          grep -n 'install -y adduser' Dockerfile-auth
           grep -n '^FROM' Dockerfile-auth
       - id: tag
         run: echo "tag=${{ env.BUILD_VERSION }}-$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
