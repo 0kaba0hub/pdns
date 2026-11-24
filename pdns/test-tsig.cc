@@ -271,7 +271,7 @@ static std::string tsigErrorSuffixOf(bool withTSIG, uint16_t eRcode)
     trc.d_fudge = 300;
     trc.d_origID = 42;
     trc.d_eRcode = eRcode;
-    addTSIG(writer, trc, DNSName("xfr-key."), "secret", "", false);
+    addTSIG(nullptr, writer, trc, DNSName("xfr-key."), "secret", "", false);
   }
   MOADNSParser mdp(false, std::string(packet.begin(), packet.end()));
   return tsigErrorSuffix(mdp);

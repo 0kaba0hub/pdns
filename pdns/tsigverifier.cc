@@ -77,10 +77,10 @@ bool TSIGTCPVerifier::check(const string& data, const MOADNSParser& mdp)
 std::string tsigErrorSuffix(const MOADNSParser& mdp)
 {
   for (const auto& answer : mdp.d_answers) {
-    if (answer.first.d_type != QType::TSIG) {
+    if (answer.d_type != QType::TSIG) {
       continue;
     }
-    auto trc = getRR<TSIGRecordContent>(answer.first);
+    auto trc = getRR<TSIGRecordContent>(answer);
     if (!trc || trc->d_eRcode == 0) {
       return "";
     }
