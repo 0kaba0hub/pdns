@@ -8,7 +8,7 @@ on:
     branches: [image-build]
 
 env:
-  BUILD_REF: 72253a9907c85f9db773d4ac312e2cc8dd9d56b2
+  BUILD_REF: 9a38a7f18976a81896dd0143c47b01833d187395
   BUILD_VERSION: 5.1.5
 
 permissions:
